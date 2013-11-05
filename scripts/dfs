@@ -343,7 +343,7 @@ $0 ~ PATTERN    {
 #           printf ("percentage_occupied = %d\n", percentage_occupied);
 #           printf ("percentage_free = %d\n", percentage_free);
 
-			printf ("%-*s", LEFT_COLUMN + 2, mount_point);
+			printf ("%-*s\t", LEFT_COLUMN + 2, mount_point);
 			if (NARROW_MODE)
 				printf ("\n%s", narrow_margin);
 
