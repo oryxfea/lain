@@ -26,8 +26,9 @@ local bat = {}
 local function worker(args)
     local args = args or {}
     local timeout = args.timeout or 30
-    local battery = args.battery or "BAT0"
+    local battery = args.battery or "BAT1"
     local ac = args.ac or "ACAD"
+    local notify = args.notify or "on"
     local settings = args.settings or function() end
 
     bat.widget = wibox.widget.textbox('')
@@ -107,7 +108,7 @@ local function worker(args)
             end
 
             -- notifications for low and critical states
-            if bat_now.status == "Discharging"
+            if bat_now.status == "Discharging" and notify == "on"
             then
                 if tonumber(bat_now.perc) <= 5
                 then
