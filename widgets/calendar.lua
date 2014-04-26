@@ -37,16 +37,15 @@ function calendar:show(t_out, inc_offset)
     local tims = t_out or 0
     local f, c_text
     local today = tonumber(os.date('%d'))
-    local init_t = '/usr/bin/cal | sed -r -e "s/(^| )( '
-    -- let's take font only, font size is set in calendar table
-    local font = beautiful.font:sub(beautiful.font:find(""),
-                 beautiful.font:find(" "))
+    local init_t = calendar.cal .. ' | sed -r -e "s/(^| )( '
 
-    if offs == 0
+    calendar.offset = calendar.offset + offs
+
+    if offs == 0 or calendar.offset == 0
     then -- current month showing, today highlighted
         if today >= 10
         then
-           init_t = '/usr/bin/cal | sed -r -e "s/(^| )('
+           init_t = calendar.cal .. ' | sed -r -e "s/(^| )('
         end
 
         calendar.offset = 0
@@ -64,7 +63,6 @@ function calendar:show(t_out, inc_offset)
        local month = tonumber(os.date('%m'))
        local year = tonumber(os.date('%Y'))
 
-       calendar.offset = calendar.offset + offs
        month = month + calendar.offset
 
        if month > 12 then
@@ -83,10 +81,10 @@ function calendar:show(t_out, inc_offset)
 
        calendar.notify_icon = nil
 
-       f = io.popen('/usr/bin/cal ' .. month .. ' ' .. year)
+       f = io.popen(calendar.cal .. ' ' .. month .. ' ' .. year)
     end
 
-    c_text = "<tt><span font='" .. font .. " "
+    c_text = "<tt><span font='" .. calendar.font .. " "
              .. calendar.font_size .. "'><b>"
              .. f:read() .. "</b>\n\n"
              .. f:read() .. "\n"
@@ -94,21 +92,26 @@ function calendar:show(t_out, inc_offset)
              .. "</span></tt>"
     f:close()
 
-    cal_notification = naughty.notify({ text = c_text,
-                                        icon = calendar.notify_icon,
-                                        position = calendar.position,
-                                        fg = calendar.fg,
-                                        bg = calendar.bg,
-                                        timeout = tims })
+    cal_notification = naughty.notify({
+        text = c_text,
+        icon = calendar.notify_icon,
+        position = calendar.position,
+        fg = calendar.fg,
+        bg = calendar.bg,
+        timeout = tims
+    })
 end
 
 function calendar:attach(widget, args)
     local args = args or {}
-    calendar.icons = args.icons or icons_dir .. "cal/white/"
+    calendar.cal       = args.cal or "/usr/bin/cal"
+    calendar.icons     = args.icons or icons_dir .. "cal/white/"
+    calendar.font      = args.font or beautiful.font:sub(beautiful.font:find(""),
+                         beautiful.font:find(" "))
     calendar.font_size = tonumber(args.font_size) or 11
-    calendar.fg = args.fg or beautiful.fg_normal or "#FFFFFF"
-    calendar.bg = args.bg or beautiful.bg_normal or "#FFFFFF"
-    calendar.position = args.position or "top_right"
+    calendar.fg        = args.fg or beautiful.fg_normal or "#FFFFFF"
+    calendar.bg        = args.bg or beautiful.bg_normal or "#FFFFFF"
+    calendar.position  = args.position or "top_right"
 
     calendar.offset = 0
     calendar.notify_icon = nil
@@ -118,7 +121,11 @@ function calendar:attach(widget, args)
     widget:buttons(awful.util.table.join( awful.button({ }, 1, function ()
                                               calendar:show(0, -1) end),
                                           awful.button({ }, 3, function ()
-                                              calendar:show(0, 1) end) ))
+                                              calendar:show(0, 1) end),
+                                          awful.button({ }, 4, function ()
+                                              calendar:show(0, -1) end),
+                                          awful.button({ }, 5, function ()
+                                              calendar:show(0, 1) end)))
 end
 
 return setmetatable(calendar, { __call = function(_, ...) return create(...) end })

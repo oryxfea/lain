@@ -1,3 +1,4 @@
+
 --[[
                                                   
      Licensed under GNU General Public License v2 
@@ -46,7 +47,7 @@ yawn_notification_preset = {}
 
 local function fetch_weather()
     local url = api_url .. units_set .. city_id
-    local f = io.popen("curl --connect-timeout 1 -fsm 1 '" .. url .. "'" )
+    local f = io.popen("curl --connect-timeout 1 -fsm 3 '" .. url .. "'" )
     local text = f:read("*all")
     f:close()
 
@@ -57,12 +58,12 @@ local function fetch_weather()
         yawn.icon:set_image(icon_path .. "na.png")
         if text == "" then
             weather_data = "Service not available at the moment."
-            yawn.widget:set_text(" N/A")
+            yawn.widget:set_text(" N/A ")
         else
             weather_data = "City not found!\n" ..
                            "Are you sure " .. city_id ..
                            " is your Yahoo city ID?"
-            yawn.widget:set_text(" ?")
+            yawn.widget:set_text(" ? ")
         end
         return
     end
@@ -74,7 +75,7 @@ local function fetch_weather()
     -- may still happens in case of bad connectivity
     if weather_data == "" then
         yawn.icon:set_image(icon_path .. "na.png")
-        yawn.widget:set_text(" ?")
+        yawn.widget:set_text(" ? ")
         return
     end
 
@@ -134,7 +135,8 @@ local function fetch_weather()
     yawn.icon:set_image(sky)
     widget = yawn.widget
 
-    forecast = weather_data:match(": %S.-,"):gsub(": ", ""):gsub(",", "")
+    _data = weather_data:match(": %S.-,") or weather_data
+    forecast = _data:gsub(": ", ""):gsub(",", "")
     units = units:gsub(" ", "")
 
     settings()

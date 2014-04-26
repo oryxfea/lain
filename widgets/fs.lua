@@ -50,7 +50,7 @@ function fs:show(t_out)
     })
 end
 
--- Units definitions
+-- Unit definitions
 local unit = { ["mb"] = 1024, ["gb"] = 1024^2 }
 
 local function worker(args)
@@ -67,7 +67,7 @@ local function worker(args)
         fs_info = {}
         fs_now  = {}
 
-        local f = io.popen("LC_ALL=C df -kP")
+        local f = io.popen("LC_ALL=C df -kP " .. partition)
 
         for line in f:lines() do -- Match: (size) (used)(avail)(use%) (mount)
             local s     = string.match(line, "^.-[%s]([%d]+)")
@@ -84,8 +84,6 @@ local function worker(args)
 
         f:close()
 
-        -- chosen partition easy stuff
-        -- you can however check whatever partition else
         fs_now.used      = tonumber(fs_info[partition .. " used_p"])  or 0
         fs_now.available = tonumber(fs_info[partition .. " avail_p"]) or 0
         fs_now.size_mb   = tonumber(fs_info[partition .. " size_mb"]) or 0
